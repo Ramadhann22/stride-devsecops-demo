@@ -35,5 +35,12 @@ jobs:
           
           echo "[ALERT] Pipeline compromised: Malicious artifact created successfully."
           
+          # ---------------------------------------------------------
+          # TAMBAHAN: Tahan pipeline di sini selama 60 detik!
+          # Segera buka dasbor kamu saat hitungan mundur ini berjalan.
+          # ---------------------------------------------------------
+          echo "[INFO] Menahan proses selama 60 detik untuk simulasi 'in_progress'..."
+          sleep 60
+          
           # Menghentikan pipeline dengan status 'failure' agar terbaca oleh dashboard Anda
           exit 1

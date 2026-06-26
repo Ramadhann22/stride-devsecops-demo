@@ -36,3 +36,4 @@ jobs:
           echo "[ALERT] Pipeline compromised: Malicious artifact created successfully."
           
           # Menghentikan pipeline dengan status 'failure' agar terbaca oleh dashboard Anda
+          exit 1

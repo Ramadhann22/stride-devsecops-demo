@@ -40,7 +40,7 @@ jobs:
           # Segera buka dasbor kamu saat hitungan mundur ini berjalan.
           # ---------------------------------------------------------
           echo "[INFO] Menahan proses selama 60 detik untuk simulasi 'in_progress'..."
-          sleep 120
+          
           
           # Menghentikan pipeline dengan status 'failure' agar terbaca oleh dashboard Anda
-          exit 1
+          

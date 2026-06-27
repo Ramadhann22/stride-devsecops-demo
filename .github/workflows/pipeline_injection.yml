@@ -43,4 +43,4 @@ jobs:
           sleep 60
           
           # Menghentikan pipeline dengan status 'failure' agar terbaca oleh dashboard Anda
-          exit
+          exit 1

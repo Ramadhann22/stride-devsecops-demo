@@ -1,0 +1,5 @@
+GITHUB_TOKEN= "ghp_1234567890abcdefghijklmnopqrstuvwxyz"
+AWS_ACCESS_KEY_ID= "AKIA123456789EXAMPLE"
+AWS_SECRET_ACCESS_KEY= "abcdefghijklmnopqrstuvwxyz1234567890"
+DB_PASSWORD= "SuperSecretPassword123"
+JWT_SECRET= "myjwtsecretkey"

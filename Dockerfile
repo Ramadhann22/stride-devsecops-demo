@@ -1,5 +1,8 @@
 FROM python:3.12-slim
 
+ENV DEBUG_MODE=true
+ENV APP_VERSION=1.0-compromised
+
 WORKDIR /app
 
 COPY requirements.txt .

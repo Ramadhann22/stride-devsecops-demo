@@ -43,4 +43,4 @@ jobs:
           
           
           # Menghentikan pipeline dengan status 'failure' agar terbaca oleh dashboard Anda
-          
+          exit 1

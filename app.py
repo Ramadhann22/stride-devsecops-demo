@@ -1132,8 +1132,8 @@ def dashboard_summary():
 @app.route("/debug")
 def debug():
     return {
-        "status": "debug enabled",
-        "message": "Development Debug Endpoint"
+        "status": "debug enabled.",
+        "message": "Development Debug Endpoint!"
     }
     
 if __name__ == '__main__':

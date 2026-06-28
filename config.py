@@ -1,1 +1,0 @@
-"SUDAH AMAN BOYYYYY, wildangalih678@gmail.com"

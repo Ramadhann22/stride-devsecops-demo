@@ -5,9 +5,6 @@ on:
     branches:
       - main
 
-permissions:
-  contents: write
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,6 +12,8 @@ jobs:
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set Up Python
         uses: actions/setup-python@v5
@@ -33,7 +32,21 @@ jobs:
         run: |
           docker build -t devsecops-demo:v1 .
 
-      - name: Simulate Privileged Pipeline
+      - name: Attack - Privilege Abuse
+        env:
+          MY_SECRET_TOKEN: ${{ secrets.HACKER_TOKEN }}
         run: |
-          echo "Pipeline has write permission to repository."
-          echo "This simulates an over-privileged GitHub Actions workflow."
+          echo "Memulai serangan..."
+          git config --global user.email "#exploit00@devil.com#"
+          git config --global user.name "#Anonim#"
+          
+          echo "BERHASIL TEMBUS" > malware.txt
+          
+          # Kita pastikan token terdeteksi (GitHub akan menyensornya dengan ***)
+          echo "Token check: $MY_SECRET_TOKEN"
+          
+          git add malware.txt
+          git commit -m "Simulate pipeline privilege abuse"
+          
+          # Gunakan variabel env dengan tanda kutip agar aman
+          git push --force "https://x-access-token:${MY_SECRET_TOKEN}@github.com/${{ github.repository }}.git" main

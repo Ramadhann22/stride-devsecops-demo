@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SecureBank Digital Services | Dasbor DevSecOps</title>
+
+        <!-- Font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+        <!-- Tailwind CSS (via CDN) -->
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <!-- FontAwesome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <script>
+            tailwind.config = {
+                darkMode: 'class',
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['Inter', 'sans-serif'],
+                            mono: ['JetBrains Mono', 'monospace'],
+                        },
+                        colors: {
+                            brand: {
+                                bg: '#0B1121',
+                                panel: '#151E32',
+                                border: '#2A3B5C',
+                                accent: '#3B82F6',
+                                indigo: '#6366F1'
+                            },
+                            status: {
+                                success: '#10B981',
+                                warning: '#F59E0B',
+                                danger: '#EF4444',
+                                info: '#0EA5E9'
+                            }
+                        }
+                    }
+                }
+            }
+        </script>
+
+        <style>
+            body {
+                background-color: theme('colors.brand.bg');
+                background-image: radial-gradient(circle at top right, #1e293b 0%, #0B1121 50%);
+                color: #E2E8F0;
+                overflow: hidden; /* Mencegah scrollbar utama */
+            }
+
+            /* Kelas Glassmorphism */
+            .glass-panel {
+                background: rgba(21, 30, 50, 0.6);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            }
+
+            .glass-header {
+                background: rgba(11, 17, 33, 0.8);
+                backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            }
+
+            /* Custom Scrollbar */
+            ::-webkit-scrollbar { width: 6px; height: 6px; }
+            ::-webkit-scrollbar-track { background: transparent; }
+            ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+            ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+            /* Status Aktif Navigasi */
+            .nav-item { transition: all 0.2s ease; }
+            .nav-item:hover { background: rgba(59, 130, 246, 0.1); color: #60A5FA; }
+            .nav-item.active {
+                background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, transparent 100%);
+                color: #60A5FA;
+                border-left: 3px solid #3B82F6;
+            }
+
+            /* Gaya Tabel */
+            th { font-weight: 500; color: #94A3B8; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+            tr { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+            tr:last-child { border-bottom: none; }
+            tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+            /* Lencana Status */
+            .badge { display: inline-flex; align-items: center; padding: 0.125rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+            .badge-critical { background: rgba(239, 68, 68, 0.15); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.3); }
+            .badge-high { background: rgba(245, 158, 11, 0.15); color: #FCD34D; border: 1px solid rgba(245, 158, 11, 0.3); }
+            .badge-medium { background: rgba(59, 130, 246, 0.15); color: #93C5FD; border: 1px solid rgba(59, 130, 246, 0.3); }
+            .badge-low { background: rgba(148, 163, 184, 0.15); color: #CBD5E1; border: 1px solid rgba(148, 163, 184, 0.3); }
+            .badge-success { background: rgba(16, 185, 129, 0.15); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+            .hide-section { display: none; }
+            .fade-in { animation: fadeIn 0.4s ease-in-out; }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        </style>
+    </head>
+
+    <body class="flex h-screen w-full antialiased text-slate-200">
+
+        <!-- Sidebar Menu Navigasi -->
+        <aside class="w-64 glass-panel border-r border-y-0 border-l-0 flex flex-col z-20 shrink-0">
+            <div class="h-16 flex items-center px-6 border-b border-brand-border/50 gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <i class="fa-solid fa-shield-halved text-white text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-sm text-white tracking-wide">SecureBank</h1>
+                    <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Digital Services</p>
+                </div>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+                <p class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-4">Ringkasan</p>
+                <a href="#" onclick="navigate('dashboard')" id="nav-dashboard" class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 font-medium border-l-3 border-transparent">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i> Dasbor Utama
+                </a>
+
+                <p class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-6">CI/CD & Kode</p>
+                <a href="#" onclick="navigate('repositories')" id="nav-repositories" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 font-medium border-l-3 border-transparent">
+                    <i class="fa-solid fa-code-branch w-5 text-center"></i> Repositori
+                </a>
+                <a href="#" onclick="navigate('pipelines')" id="nav-pipelines" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 font-medium border-l-3 border-transparent">
+                    <i class="fa-solid fa-play w-5 text-center"></i> Pipeline
+                </a>
+
+                <p class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-6">Keamanan</p>
+                <a href="#" onclick="navigate('security')" id="nav-security" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 font-medium border-l-3 border-transparent">
+                    <i class="fa-solid fa-lock w-5 text-center"></i> Pusat Keamanan
+                </a>
+                <a href="#" onclick="navigate('artifacts')" id="nav-artifacts" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 font-medium border-l-3 border-transparent">
+                    <i class="fa-solid fa-box-archive w-5 text-center"></i> Registri Artefak
+                </a>
+
+                <p class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-6">Operasional</p>
+                <a href="#" onclick="navigate('infrastructure')" id="nav-infrastructure" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 font-medium border-l-3 border-transparent">
+                    <i class="fa-solid fa-server w-5 text-center"></i> Infrastruktur
+                </a>
+                <a href="#" onclick="navigate('audit')" id="nav-audit" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 font-medium border-l-3 border-transparent">
+                    <i class="fa-solid fa-list-check w-5 text-center"></i> Log Audit
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-brand-border/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center font-bold text-sm">
+                        WGR
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-white">W!LDX</p>
+                        <p class="text-xs text-slate-400">Developer</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Konten Utama -->
+        <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
+
+            <!-- Header Atas (Topbar) -->
+            <header class="h-16 glass-header flex items-center justify-between px-6 shrink-0 z-20">
+                <div class="flex items-center text-sm text-slate-400">
+                    <i class="fa-solid fa-house mr-2"></i> / <span class="mx-2">Platform</span> / <span id="breadcrumb-current" class="mx-2 text-white font-medium">Dasbor Utama</span>
+                </div>
+
+                <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-4 text-slate-400">
+                        <button class="hover:text-white transition-colors relative">
+                            <i class="fa-regular fa-bell text-lg"></i>
+                            <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-brand-bg"></span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Area Semua Halaman -->
+            <div id="pages-container" class="flex-1 overflow-y-auto p-6 md:p-8 scroll-smooth">
+
+                <!-- ================= HALAMAN DASBOR ================= -->
+                <section id="page-dashboard" class="page-section fade-in">
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Ringkasan Eksekutif</h2>
+                            <p class="text-slate-400 mt-1 text-sm">Ikhtisar infrastruktur, keamanan, dan pipeline SecureBank.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="glass-panel p-4 rounded-xl flex flex-col justify-between">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-slate-400 text-xs font-medium uppercase tracking-wide">Total Repositori</span>
+                                <div class="w-7 h-7 rounded bg-blue-500/10 flex items-center justify-center text-blue-500">
+                                    <i class="fa-solid fa-code-branch text-xs"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div id="dash-total-repo" class="text-2xl font-bold text-white">...</div>
+                                <div class="text-xs text-blue-400 mt-1 flex items-center">
+                                    <i class="fa-brands fa-github mr-1"></i> 
+                                    <span id="dash-repo-trend">Memuat akun...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-4 rounded-xl flex flex-col justify-between">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-slate-400 text-xs font-medium uppercase tracking-wide">Total Riwayat Pipeline</span>
+                                <div class="w-7 h-7 rounded bg-indigo-500/10 flex items-center justify-center text-indigo-500"><i class="fa-solid fa-play text-xs"></i></div>
+                            </div>
+                            <div>
+                                <div id="dash-active-pipeline" class="text-2xl font-bold text-white">...</div>
+                                <div class="text-xs text-slate-400 mt-1">di <span id="dash-pipeline-projects">0</span> proyek</div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-4 rounded-xl flex flex-col justify-between">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-slate-400 text-xs font-medium uppercase tracking-wide">Temuan Keamanan</span>
+                                <div class="w-7 h-7 rounded bg-orange-500/10 flex items-center justify-center text-orange-500"><i class="fa-solid fa-shield-virus text-xs"></i></div>
+                            </div>
+                            <div>
+                                <div id="dash-security-findings" class="text-2xl font-bold text-white">...</div>
+                                <div class="text-xs text-emerald-400 mt-1 flex items-center"><i id="dash-security-icon" class="fa-solid fa-arrow-trend-down mr-1"></i> <span id="dash-security-trend">-0% vs minggu lalu</span></div>
+                            </div>
+                        </div>
+
+                        <div id="dash-critical-card" class="glass-panel p-4 rounded-xl flex flex-col justify-between relative overflow-hidden transition-all duration-300">
+                            <div id="dash-critical-bg" class="absolute inset-0 z-0 transition-all duration-300"></div>
+                            
+                            <div class="flex justify-between items-start mb-2 z-10">
+                                <span id="dash-critical-title" class="text-xs font-medium uppercase tracking-wide transition-colors duration-300">Celah Kritis</span>
+                                
+                                <div id="dash-critical-icon-wrapper" class="w-7 h-7 rounded flex items-center justify-center transition-colors duration-300">
+                                    </div>
+                            </div>
+                            
+                            <div class="z-10">
+                                <div id="dash-critical-vuln" class="text-2xl font-bold transition-colors duration-300">...</div>
+                                
+                                <div id="dash-critical-desc" class="text-xs mt-1 flex items-center opacity-80 transition-colors duration-300">
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-xl p-5 mb-6 border border-slate-700/50">
+                        <div class="mb-4 pb-4 border-b border-slate-700/50">
+                            <h3 class="font-medium text-white text-lg flex items-center gap-2">
+                                <i class="fa-solid fa-shield-halved text-emerald-400"></i> Security Posture Overview
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">Konfigurasi kontrol gerbang pengembang DevSecOps SecureBank.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                            <div class="bg-slate-800/40 border border-slate-700/50 p-4 rounded-lg flex flex-col justify-between">
+                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-3">Commit Signing (GPG)</span>
+                                <div class="mt-1">
+                                    <span id="posture-signed-commit" class="text-[10px] px-2 py-0.5 rounded font-semibold uppercase tracking-wider transition-colors duration-300">...</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-800/40 border border-slate-700/50 p-4 rounded-lg flex flex-col justify-between">
+                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-3">Secret Leakage Scanner</span>
+                                <div class="mt-1">
+                                    <span id="posture-secret-scanning" class="text-[10px] px-2 py-0.5 rounded font-semibold uppercase tracking-wider transition-colors duration-300">...</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-800/40 border border-slate-700/50 p-4 rounded-lg flex flex-col justify-between">
+                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-3">Dependency Vulnerability</span>
+                                <div class="mt-1">
+                                    <span id="posture-sbom" class="text-[10px] px-2 py-0.5 rounded font-semibold uppercase tracking-wider transition-colors duration-300">...</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-800/40 border border-slate-700/50 p-4 rounded-lg flex flex-col justify-between">
+                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-3">Docker Signing (Cosign)</span>
+                                <div class="mt-1">
+                                    <span id="posture-artifact-signing" class="text-[10px] px-2 py-0.5 rounded font-semibold uppercase tracking-wider transition-colors duration-300">...</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-800/40 border border-slate-700/50 p-4 rounded-lg flex flex-col justify-between">
+                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-3">Pipeline Protection</span>
+                                <div class="mt-1">
+                                    <span id="posture-least-privilege" class="text-[10px] px-2 py-0.5 rounded font-semibold uppercase tracking-wider transition-colors duration-300">...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                        <div class="glass-panel rounded-xl p-5 lg:col-span-2">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-medium text-white">Tren Temuan Keamanan</h3>
+                                <span class="bg-slate-800 border border-slate-700 text-slate-400 text-xs rounded px-2 py-1 selection:bg-transparent">
+                                    7 Hari Terakhir
+                                </span>
+                            </div>
+                            <div class="h-64 relative w-full">
+                                <canvas id="chartSecurityTrend"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel rounded-xl p-5">
+                            <div class="flex justify-center items-center mb-4">
+                                <h3 class="font-medium text-white">STRIDE Threat Immunity Mapping</h3>
+                            </div>
+                            <div class="h-64 relative w-full">
+                                <canvas id="chartStrideDistribution"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                        <div class="glass-panel rounded-xl p-6 lg:col-span-2">
+                            <div class="mb-14 flex items-center justify-between">
+                                <h3 class="font-semibold text-white text-base tracking-wide">Tingkat Kesuksesan Pipeline</h3>
+                            </div>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                                
+                                <div class="lg:col-span-5 relative flex justify-center items-center h-56">
+                                    <canvas id="chartPipelineSuccess" class="relative z-10 filter drop-shadow-[0_0_15px_rgba(34,197,94,0.15)]"></canvas>
+                                    
+                                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                                        <div class="flex items-center justify-center text-slate-600 opacity-20">
+                                            <i class="fa-solid fa-shield-halved text-3xl"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="lg:col-span-7 flex flex-col gap-2.5 justify-center h-full">
+                                    
+                                    <div class="flex items-center justify-between p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] hover:border-white/[0.08] transition-all duration-300 group">
+                                        <div class="flex items-center gap-3">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]"></span>
+                                            <span class="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">Pipeline Sukses</span>
+                                        </div>
+                                        <span id="lbl-pipe-success" class="text-lg font-semibold text-emerald-400 tracking-tight">0%</span>
+                                    </div>
+
+                                    <div class="flex items-center justify-between p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] hover:border-white/[0.08] transition-all duration-300 group">
+                                        <div class="flex items-center gap-3">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_#ef4444]"></span>
+                                            <span class="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">Pipeline Gagal</span>
+                                        </div>
+                                        <span id="lbl-pipe-fail" class="text-lg font-semibold text-red-400 tracking-tight">0%</span>
+                                    </div>
+
+                                    <div class="flex items-center justify-between p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] hover:border-white/[0.08] transition-all duration-300 group">
+                                        <div class="flex items-center gap-3">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-[0_0_10px_#f97316] animate-pulse"></span>
+                                            <span class="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">Dalam Proses</span>
+                                        </div>
+                                        <span id="lbl-pipe-process" class="text-lg font-semibold text-orange-400 tracking-tight">0%</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel rounded-xl p-5 flex flex-col justify-between h-full">
+                            <div class="flex flex-col h-full overflow-hidden">
+                                
+                                <h3 class="font-medium text-white mb-4 shrink-0 text-center">Attack vs Mitigation Matrix</h3>
+                                
+                                <div class="space-y-2 overflow-y-auto pr-1 flex-1 custom-scrollbar min-h-0">
+                                    
+                                    <div class="py-2 px-3 bg-slate-800/40 rounded-lg border border-slate-700/50">
+                                        <div class="flex justify-between text-[10px] font-mono text-blue-400 mb-0.5">
+                                            <span>VEKTOR SERANGAN</span>
+                                            <span>MITIGASI</span>
+                                        </div>
+                                        <div class="flex justify-between items-center text-xs">
+                                            <span class="font-medium text-white">Malicious Commit</span>
+                                            <span class="text-emerald-400">Commit Signing</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="py-2 px-3 bg-slate-800/40 rounded-lg border border-slate-700/50">
+                                        <div class="flex justify-between text-[10px] font-mono text-blue-400 mb-0.5">
+                                            <span>VEKTOR SERANGAN</span>
+                                            <span>MITIGASI</span>
+                                        </div>
+                                        <div class="flex justify-between items-center text-xs">
+                                            <span class="font-medium text-white">Secret Leakage</span>
+                                            <span class="text-emerald-400">Secret Leakage Scanner</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="py-2 px-3 bg-slate-800/40 rounded-lg border border-slate-700/50">
+                                        <div class="flex justify-between text-[10px] font-mono text-blue-400 mb-0.5">
+                                            <span>VEKTOR SERANGAN</span>
+                                            <span>MITIGASI</span>
+                                        </div>
+                                        <div class="flex justify-between items-center text-xs">
+                                            <span class="font-medium text-white">Dependency Poisoning</span>
+                                            <span class="text-emerald-400">Dependency Vulnerability</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="py-2 px-3 bg-slate-800/40 rounded-lg border border-slate-700/50">
+                                        <div class="flex justify-between text-[10px] font-mono text-blue-400 mb-0.5">
+                                            <span>VEKTOR SERANGAN</span>
+                                            <span>MITIGASI</span>
+                                        </div>
+                                        <div class="flex justify-between items-center text-xs">
+                                            <span class="font-medium text-white">Supply Chain Attack</span>
+                                            <span class="text-emerald-400">Docker Signing</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="py-2 px-3 bg-slate-800/40 rounded-lg border border-slate-700/50">
+                                        <div class="flex justify-between text-[10px] font-mono text-blue-400 mb-0.5">
+                                            <span>VEKTOR SERANGAN</span>
+                                            <span>MITIGASI</span>
+                                        </div>
+                                        <div class="flex justify-between items-center text-xs">
+                                            <span class="font-medium text-white">Pipeline Privilege Abuse</span>
+                                            <span class="text-emerald-400">Pipeline Protection</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            
+                            <p class="text-[10px] text-slate-500 mt-4 text-center shrink-0">Matriks pertahanan terhadap insiden rantai pasok.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-xl p-0 flex flex-col mb-6">
+                        <div class="p-5 border-b border-slate-700/50 flex justify-between items-center">
+                            <h3 class="font-medium text-white">Aktivitas Terbaru</h3>
+                        </div>
+                        <div class="p-2 overflow-y-auto max-h-[300px] custom-scrollbar">
+                            <div id="activity-container" class="grid grid-cols-1 md:grid-cols-2 gap-2 p-2">
+                                <div class="w-full col-span-full p-4 text-center text-sm text-slate-400">
+                                    <i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Memuat aktivitas log...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= HALAMAN REPOSITORI ================= -->
+                <section id="page-repositories" class="page-section hide-section fade-in">
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Repositori</h2>
+                            <p class="text-slate-400 mt-1 text-sm">Kelola kode sumber dan perlindungan cabang secara real-time.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-xl overflow-hidden border border-slate-700/50">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-800/50">
+                                <tr>
+                                    <th class="p-4">Repositori</th>
+                                    <th class="p-4">Cabang Utama</th>
+                                    <th class="p-4">SHA Commit Terakhir</th>
+                                    <th class="p-4">Penulis Terakhir</th>
+                                    <th class="p-4">Status Perlindungan</th>
+                                    <th class="p-4">Status Keamanan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="repos-table-body" class="text-sm">
+                                <!-- Diisi secara dinamis melalui API GitHub -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ================= HALAMAN PIPELINE ================= -->
+                <section id="page-pipelines" class="page-section hide-section fade-in">
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Pipeline CI/CD</h2>
+                            <p class="text-slate-400 mt-1 text-sm">Pantau tugas yang berjalan dan riwayat build secara real-time dari GitHub Actions.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-xl overflow-hidden border border-slate-700/50">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-800/50">
+                                <tr>
+                                    <th class="p-4">ID Build</th>
+                                    <th class="p-4">Repositori & Cabang</th>
+                                    <th class="p-4">Dicuatkan Oleh</th>
+                                    <th class="p-4 w-48">Durasi & Progres</th>
+                                    <th class="py-4 pl-4 pr-8 text-right">Status</th> 
+                                </tr>
+                            </thead>
+                            <tbody id="pipelines-table-body" class="text-sm">
+                                </tbody>
+                        </table>
+                    </div>
+
+                    <div class="flex justify-between items-center mt-4 text-xs text-slate-400 px-2 pb-4">
+                    <div id="pipeline-pagination-info">Menampilkan 0 - 0 dari 0 pipeline</div>
+                    <div class="flex gap-2" id="pipeline-pagination-buttons"></div>
+                </div>
+                </section>
+
+                <!-- ================= HALAMAN PUSAT KEAMANAN (SECURITY CENTER) ================= -->
+                <section id="page-security" class="page-section hide-section fade-in">
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Pusat Keamanan (Security Center)</h2>
+                            <p class="text-slate-400 mt-1 text-sm">Postur pemantauan taktis DevSecOps dan manajemen kerentanan.</p>
+                        </div>
+                        <div id="score-card-container" class="glass-panel px-6 py-2 rounded-lg flex items-center border border-emerald-500/30 transition-colors duration-500">
+                            <div class="mr-4 text-right">
+                                <div class="text-xs text-slate-400 uppercase tracking-wide">Skor Keamanan</div>
+                                <div id="security-score-display" class="text-xl font-bold text-emerald-400">Loading...</div>
+                            </div>
+                            <i id="security-score-icon" class="fa-solid fa-shield-halved text-3xl text-emerald-500"></i>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-xl p-5 mb-6 border border-slate-700/50">
+                        <h3 class="font-medium text-white mb-4"><i class="fa-solid fa-sliders text-blue-400 mr-2"></i>Status Mitigasi DevSecOps</h3>
+                        <div id="mitigation-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                            <div class="text-slate-400 text-sm animate-pulse">Memuat status mitigasi real-time...</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-6">
+                        <div class="glass-panel rounded-xl p-6 border border-slate-700/50">
+                            <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                                <h3 class="font-medium text-white text-lg flex items-center gap-2">
+                                    <i class="fa-solid fa-clock-rotate-left text-blue-400"></i> Security Findings Timeline
+                                </h3>
+                                <span class="text-xs text-slate-400 font-mono">Real-time Stream Feed</span>
+                            </div>
+                            <div id="security-timeline-container" class="relative border-l-2 border-slate-700/80 ml-4 pl-8 space-y-6">
+                                <div class="text-slate-400 text-sm animate-pulse">Memuat log keamanan...</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= HALAMAN REGISTRI ARTEFAK ================= -->
+                <section id="page-artifacts" class="page-section hide-section fade-in">
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Registri Artefak</h2>
+                            <p class="text-slate-400 mt-1 text-sm">Penyimpanan aman untuk image container dan paket.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-xl overflow-hidden border border-slate-700/50">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-800/50">
+                                <tr>
+                                    <th class="p-4">Image Docker</th>
+                                    <th class="p-4">Tag / Digest</th>
+                                    <th class="p-4">Ukuran</th>
+                                    <th class="p-4">Dibuat</th>
+                                    <th class="p-4">Status Tanda Tangan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="artifact-table-body" class="text-sm">
+                                </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ================= HALAMAN INFRASTRUKTUR ================= -->
+                <section id="page-infrastructure" class="page-section hide-section fade-in">
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Infrastruktur</h2>
+                            <p class="text-slate-400 mt-1 text-sm">Kesehatan server, node, dan jaringan.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+                        <!-- ① UBUNTU SERVER -->
+                        <div class="glass-panel p-5 rounded-xl">
+                            <div class="flex justify-between mb-4">
+                                <i class="fa-brands fa-ubuntu text-3xl text-orange-500"></i>
+                                <span id="serverIndicator"
+                                    class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_7px_rgba(52,211,153,0.7)] animate-pulse mt-0.5">
+                                </span>
+                            </div>
+
+                            <h3 class="text-sm font-bold text-white mb-1">Ubuntu Server</h3>
+                            <p id="hostnameValue"
+                                class="text-xs text-slate-400 font-mono mb-4 truncate">
+                                Loading...
+                            </p>
+
+                            <div class="flex justify-between text-xs mb-2.5">
+                                <span class="text-slate-400">Status</span>
+                                <span id="serverStatus" class="text-emerald-400 font-semibold">AKTIF</span>
+                            </div>
+
+                            <div class="space-y-2.5">
+
+                                <!-- CPU -->
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1.5">
+                                        <span class="text-slate-400">Penggunaan CPU</span>
+                                        <span id="cpuValue" class="text-orange-400 font-semibold">--%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 h-1.5 rounded-full">
+                                        <div id="cpuBar"
+                                            class="bg-orange-500 h-1.5 rounded-full transition-all duration-700"
+                                            style="width:0%">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- MEMORY -->
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1.5">
+                                        <span class="text-slate-400">Memori</span>
+                                        <span id="memoryValue" class="text-blue-400 font-semibold">--%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 h-1.5 rounded-full">
+                                        <div id="memoryBar"
+                                            class="bg-blue-500 h-1.5 rounded-full transition-all duration-700"
+                                            style="width:0%">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- DISK -->
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1.5">
+                                        <span class="text-slate-400">Penyimpanan Disk</span>
+                                        <span id="diskValue" class="text-emerald-400 font-semibold">--%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 h-1.5 rounded-full">
+                                        <div id="diskBar"
+                                            class="bg-emerald-500 h-1.5 rounded-full transition-all duration-700"
+                                            style="width:0%">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- UPTIME -->
+                                <div class="flex justify-between text-xs pt-1">
+                                    <span class="text-slate-400">Uptime</span>
+                                    <span id="uptimeValue" class="text-white font-semibold">--</span>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- ② DOCKER ENGINE -->
+                        <div class="glass-panel p-5 rounded-xl">
+                            <div class="flex justify-between mb-4">
+                                <i class="fa-brands fa-docker text-3xl text-blue-400"></i>
+                                <span id="dockerIndicator"
+                                    class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_7px_rgba(52,211,153,0.7)] animate-pulse mt-0.5">
+                                </span>
+                            </div>
+
+                            <h3 class="text-sm font-bold text-white mb-1">Docker Engine</h3>
+                            <p id="dockerHost"
+                                class="text-xs text-slate-400 font-mono mb-4 truncate">
+                                docker-host
+                            </p>
+
+                            <div class="space-y-2.5">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400">Container Running</span>
+                                    <span id="dockerRunning" class="font-semibold text-white">0</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400">Status</span>
+                                    <span id="dockerStatus" class="text-emerald-400 font-semibold">Running</span>
+                                </div>
+
+                                <div class="border-t border-slate-700/60 pt-3 mt-1">
+                                    <div class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">
+                                        Active Container
+                                    </div>
+                                    <div id="dockerContainerList" class="space-y-2 text-xs"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ③ LATEST ACTIONS RUN -->
+                        <div class="glass-panel p-5 rounded-xl">
+                            <div class="flex justify-between mb-4">
+                                <i class="fa-brands fa-github text-3xl text-slate-200"></i>
+                                <span id="gh-latest-indicator"
+                                    class="w-2.5 h-2.5 rounded-full bg-slate-500 animate-pulse mt-0.5">
+                                </span>
+                            </div>
+
+                            <h3 class="text-sm font-bold text-white mb-1">Latest Actions Run</h3>
+                            <p id="gh-latest-repo"
+                                class="text-xs text-slate-400 font-mono mb-4 truncate">
+                                Menunggu data...
+                            </p>
+
+                            <div class="space-y-2.5">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400">Workflow Status</span>
+                                    <span id="gh-latest-status" class="font-semibold text-white">-</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400">Run Number</span>
+                                    <span id="gh-latest-run" class="font-semibold text-white">-</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400">Branch</span>
+                                    <span id="gh-latest-branch" class="font-semibold text-white">-</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400">Trigger Event</span>
+                                    <span id="gh-latest-event" class="font-semibold text-white capitalize">-</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400">Duration</span>
+                                    <span id="gh-latest-duration" class="font-semibold text-white">-</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400">Permission</span>
+                                    <span class="font-semibold text-emerald-400">read/write</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ④ JARINGAN TAILSCALE -->
+                        <div class="glass-panel p-5 rounded-xl">
+                            <div class="flex justify-between mb-4">
+                                <i class="fa-solid fa-network-wired text-3xl text-indigo-400"></i>
+                                <span id="ts-indicator"
+                                    class="w-2.5 h-2.5 rounded-full bg-slate-500 animate-pulse mt-0.5">
+                                </span>
+                            </div>
+
+                            <h3 class="text-sm font-bold text-white mb-1">Jaringan Tailscale</h3>
+                            <p id="ts-server-name"
+                                class="text-xs text-slate-400 font-mono mb-4 truncate">
+                                Loading...
+                            </p>
+
+                            <div class="space-y-2.5">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400">Status</span>
+                                    <span id="ts-status" class="font-semibold text-white">-</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400">Tailscale IP</span>
+                                    <span id="ts-ip" class="font-mono font-semibold text-white">-</span>
+                                </div>
+
+                                <div class="border-t border-slate-700/60 pt-3 mt-1">
+                                    <div class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">
+                                        Perangkat Aktif
+                                    </div>
+                                    <ul id="ts-devices-list"
+                                        class="space-y-2 text-xs font-mono text-emerald-400">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- ================= HALAMAN LOG AUDIT ================= -->
+                <section id="page-audit" class="page-section hide-section fade-in">
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">Log Audit & Keamanan</h2>
+                            <p class="text-slate-400 mt-1 text-sm">Pemantauan DevSecOps real-time untuk mendeteksi anomali dan ancaman.</p>
+                        </div>
+                        </div>
+
+                    <div class="glass-panel rounded-xl overflow-hidden border border-slate-700/50">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-800/50">
+                                <tr class="text-sm">
+                                    <th class="p-4 font-semibold text-slate-300">Waktu (UTC)</th>
+                                    <th class="p-4 font-semibold text-slate-300">Kategori</th>
+                                    <th class="p-4 font-semibold text-slate-300">Detail Peristiwa</th>
+                                    <th class="p-4 font-semibold text-slate-300">Tingkat Keparahan</th>
+                                    <th class="p-4 text-right font-semibold text-slate-300">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-table-body" class="text-xs">
+                                </tbody>
+                        </table>
+                    </div>
+
+                    <div class="flex justify-between items-center mt-4 text-xs text-slate-400 px-2">
+                        <div id="pagination-info">Menampilkan 0 - 0 dari 0 log</div>
+                        <div class="flex gap-2" id="pagination-buttons"></div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <script>
+
+            // ==========================================
+            // 1. Fungsi untuk menghitung durasi Pipeline (dari dibuat sampai selesai/update)
+            // ==========================================
+            
+            function formatDuration(startTime, endTime) {
+                let diffInSeconds = 0;
+
+                // Jika tabel memanggil menggunakan 1 variabel durasi (misal: run.duration)
+                if (typeof startTime === 'number' && !endTime) {
+                    diffInSeconds = startTime;
+                } 
+                // Jika tabel memanggil menggunakan 2 variabel tanggal (misal: run.created_at, run.updated_at)
+                else if (startTime && endTime) {
+                    const start = new Date(startTime);
+                    const end = new Date(endTime);
+                    diffInSeconds = Math.floor((end - start) / 1000);
+                } 
+                // Jika data benar-benar tidak ada
+                else {
+                    return "-";
+                }
+
+                // Jika terjadi error perhitungan atau durasi negatif
+                if (isNaN(diffInSeconds) || diffInSeconds < 0) return "-";
+
+                const hours = Math.floor(diffInSeconds / 3600);
+                const minutes = Math.floor((diffInSeconds % 3600) / 60);
+                const seconds = diffInSeconds % 60;
+
+                if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+                if (minutes > 0) return `${minutes}m ${seconds}s`;
+                return `${seconds}s`;
+            }
+
+            // ==========================================
+            // 2. NAVIGATION (SPA LOGIC)
+            // ==========================================
+
+            function navigate(pageId) {
+                // Sembunyikan semua halaman
+                document.querySelectorAll('.page-section').forEach(el => el.classList.add('hide-section'));
+                // Hapus kelas aktif dari semua item nav
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+                // Tampilkan halaman target
+                document.getElementById('page-' + pageId).classList.remove('hide-section');
+                
+                // Tambahkan kelas aktif ke item nav target
+                const targetNav = document.getElementById('nav-' + pageId);
+                if (targetNav) {
+                    targetNav.classList.add('active');
+                }
+
+                // Perbarui Breadcrumb
+                const breadcrumbNames = {
+                    'dashboard': 'Dasbor Utama',
+                    'repositories': 'Repositori',
+                    'pipelines': 'Pipeline',
+                    'security': 'Pusat Keamanan',
+                    'artifacts': 'Registri Artefak',
+                    'infrastructure': 'Infrastruktur',
+                    'audit': 'Log Audit'
+                };
+                document.getElementById('breadcrumb-current').textContent = breadcrumbNames[pageId];
+
+                // Render ulang grafik atau update data repositori jika halaman dipindahkan
+                if (pageId === 'repositories') {
+                    fetchGitHubRepos();
+                } else if (pageId === 'pipelines') {
+                    fetchGitHubPipelines();
+                }
+            }
+
+            // ==========================================
+            // 4. GITHUB INTEGRATION
+            // ==========================================
+
+            // --- REPOSITORIES ---
+            function renderRepositories(repos) {
+                const tableBody = document.getElementById('repos-table-body');
+                tableBody.innerHTML = "";
+
+                repos.forEach(repo => {
+                    const isProtected = repo.private || repo.default_branch === 'main' || repo.default_branch === 'master';
+                    const protectionBadge = isProtected 
+                        ? `<span class="badge badge-success"><i class="fa-solid fa-lock mr-1"></i> Terlindungi</span>`
+                        : `<span class="badge badge-warning text-orange-400 bg-orange-500/10 border border-orange-500/30"><i class="fa-solid fa-unlock mr-1"></i> Terbuka</span>`;
+
+                    let securityBadge = `<span class="badge badge-success">Lulus</span>`;
+                    if (repo.name.toLowerCase().includes("api") || repo.name.toLowerCase().includes("payment")) {
+                        securityBadge = `<span class="badge badge-critical">1 Kritis</span>`;
+                    } else if (repo.name.toLowerCase().includes("portal") || repo.name.toLowerCase().includes("admin")) {
+                        securityBadge = `<span class="badge badge-high">2 Tinggi</span>`;
+                    }
+
+                    tableBody.innerHTML += `
+                        <tr class="border-b border-brand-border/40 hover:bg-white/5 transition-colors">
+                            <td class="p-4 font-medium text-blue-400">
+                                <a href="${repo.html_url}" target="_blank" class="hover:underline flex items-center gap-1">
+                                    <i class="fa-solid fa-book-bookmark text-slate-500 mr-1"></i>${repo.name}
+                                    ${repo.private ? '<span class="ml-2 text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">Privat</span>' : ''}
+                                </a>
+                            </td>
+                            <td class="p-4"><span class="bg-slate-800 px-2 py-1 rounded text-xs font-mono border border-slate-700"><i class="fa-solid fa-code-branch mr-1 text-slate-500"></i>${repo.default_branch}</span></td>
+                            <td class="p-4 font-mono text-xs text-slate-400">${repo.lastCommitSha}</td>
+                            <td class="p-4 flex items-center">
+                                <div class="w-5 h-5 rounded-full bg-slate-600 mr-2 text-[10px] flex items-center justify-center font-bold text-white uppercase">${repo.authorName.substring(0, 2)}</div> 
+                                <span class="text-sm">${repo.authorName}</span>
+                            </td>
+                            <td class="p-4">${protectionBadge}</td>
+                            <td class="p-4">${securityBadge}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            async function fetchGitHubRepos() {
+                const statusLabel = document.getElementById('github-connection-status');
+                const tableBody = document.getElementById('repos-table-body');
+
+                tableBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-2xl text-blue-500 mb-2"></i><p class="text-sm">Menghubungi server backend...</p></td></tr>`;
+
+                if (statusLabel) {
+                    statusLabel.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Sinkronisasi...`;
+                    statusLabel.className = "text-xs bg-blue-500/10 text-blue-400 px-3 py-1.5 rounded-full border border-blue-500/20";
+                }
+
+                try {
+                    // Tembak ke API lokal Flask kita
+                    const response = await fetch('/api/github/repos');
+                    if (!response.ok) throw new Error("Gagal mengambil data dari backend");
+                    
+                    const repos = await response.json();
+
+                    if (repos.error) throw new Error(repos.error);
+
+                    if (repos.length === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500"><i class="fa-solid fa-folder-open text-2xl mb-2 text-slate-400"></i><p>Tidak ada repositori ditemukan.</p></td></tr>`;
+                        if (statusLabel) {
+                            statusLabel.textContent = "Terhubung (Kosong)";
+                            statusLabel.className = "text-xs bg-yellow-500/10 text-yellow-400 px-2.5 py-0.5 rounded-full border border-yellow-500/20";
+                        }
+                        return;
+                    }
+
+                    renderRepositories(repos); // Fungsi renderRepositories tetap sama seperti kode Anda sebelumnya
+
+                    if (statusLabel) {
+                        statusLabel.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> Terhubung Real-Time`;
+                        statusLabel.className = "text-xs bg-emerald-500/10 text-emerald-400 px-3 py-1.5 rounded-full border border-emerald-500/20";
+                    }
+                } catch (error) {
+                    tableBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-400"><i class="fa-solid fa-triangle-exclamation text-2xl mb-2"></i><p class="font-semibold">Sinkronisasi Gagal</p><p class="text-xs text-slate-400 mt-1">${error.message}</p></td></tr>`;
+                    if (statusLabel) {
+                        statusLabel.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Koneksi Terputus`;
+                        statusLabel.className = "text-xs bg-red-500/10 text-red-400 px-3 py-1.5 rounded-full border border-red-500/20";
+                    }
+                }
+            }
+
+            // --- VARIABEL GLOBAL UNTUK PAGINASI PIPELINE ---
+            let allPipelineData = [];
+            let currentPipelinePage = 1;
+            const pipelineRowsPerPage = 15;
+
+            // --- PIPELINES (GITHUB ACTIONS) ---
+            function renderPipelines() {
+                const tableBody = document.getElementById('pipelines-table-body');
+                tableBody.innerHTML = "";
+
+                // [TAMBAHAN PAGINASI]: Hitung indeks pemotongan data
+                const startIndex = (currentPipelinePage - 1) * pipelineRowsPerPage;
+                const endIndex = Math.min(startIndex + pipelineRowsPerPage, allPipelineData.length);
+                const paginatedRuns = allPipelineData.slice(startIndex, endIndex);
+
+                // [ASLI]: Menggunakan paginatedRuns untuk melooping data di halaman aktif
+                paginatedRuns.forEach(run => {
+                    let statusBadge = '', progressHtml = '';
+                    let durationMs = run.status === 'completed' ? (run.updated_at - run.created_at) : (new Date() - run.created_at);
+                    let durationStr = formatDuration(durationMs);
+
+                    if (run.status === 'in_progress' || run.status === 'queued') {
+                        statusBadge = `<span class="badge text-blue-400 bg-blue-500/10 border border-blue-500/30"><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> ${run.status === 'queued' ? 'Menunggu' : 'Berjalan'}</span>`;
+                        progressHtml = `<div class="text-xs mb-1 flex justify-between"><span>${durationStr}</span><span class="text-blue-400 animate-pulse">${run.status === 'queued' ? 'Antrian' : 'Memproses'}</span></div><div class="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden"><div class="bg-blue-500 h-1.5 rounded-full w-2/3 animate-pulse"></div></div>`;
+                    } else if (run.status === 'completed') {
+                        if (run.conclusion === 'success') {
+                            statusBadge = `<span class="badge badge-success"><i class="fa-solid fa-check mr-1"></i> Sukses</span>`;
+                            progressHtml = `<div class="text-xs mb-1">${durationStr}</div><div class="w-full bg-slate-700 rounded-full h-1.5"><div class="bg-emerald-500 h-1.5 rounded-full w-full"></div></div>`;
+                        } else if (run.conclusion === 'failure' || run.conclusion === 'timed_out') {
+                            statusBadge = `<span class="badge badge-critical"><i class="fa-solid fa-xmark mr-1"></i> Gagal</span>`;
+                            progressHtml = `<div class="text-xs mb-1">${durationStr}</div><div class="w-full bg-slate-700 rounded-full h-1.5"><div class="bg-red-500 h-1.5 rounded-full w-full"></div></div>`;
+                        } else {
+                            statusBadge = `<span class="badge badge-slate-400 bg-slate-500/10 border border-slate-500/30"><i class="fa-solid fa-ban mr-1"></i> Dibatalkan</span>`;
+                            progressHtml = `<div class="text-xs mb-1">${durationStr}</div><div class="w-full bg-slate-700 rounded-full h-1.5"><div class="bg-slate-500 h-1.5 rounded-full w-full"></div></div>`;
+                        }
+                    }
+
+                    tableBody.innerHTML += `
+                        <tr class="border-b border-brand-border/40 hover:bg-white/5 transition-colors">
+                            <td class="p-4 font-mono text-blue-400"><a href="${run.html_url}" target="_blank" class="hover:underline">#${run.id.toString().slice(-5)}</a></td>
+                            <td class="p-4"><div class="font-medium text-slate-200">${run.repoName}</div><div class="text-xs text-slate-500 mt-0.5"><i class="fa-solid fa-code-branch mr-1"></i>${run.branch}</div></td>
+                            <td class="p-4 text-slate-400"><div class="truncate w-32 md:w-48 text-slate-300" title="${run.commitMsg}">${run.commitMsg}</div><div class="text-xs mt-0.5 font-mono">${run.actor} • ${run.commitSha}</div></td>
+                            <td class="p-4">${progressHtml}</td>
+                            <td class="py-4 pl-4 pr-8 text-right">${statusBadge}</td>
+                        </tr>
+                    `;
+                });
+
+                // [TAMBAHAN PAGINASI]: Update teks info dan tombol halaman
+                const infoEl = document.getElementById('pipeline-pagination-info');
+                if (infoEl) {
+                    if (allPipelineData.length === 0) {
+                        infoEl.innerText = "Menampilkan 0 dari 0 pipeline";
+                    } else {
+                        infoEl.innerText = `Menampilkan ${startIndex + 1} - ${endIndex} dari ${allPipelineData.length} pipeline`;
+                    }
+                }
+                renderPipelinePaginationButtons();
+            }
+
+            // [ASLI]: Fungsi fetch data utama
+            async function fetchGitHubPipelines() {
+                const statusLabel = document.getElementById('github-pipeline-status');
+                const tableBody = document.getElementById('pipelines-table-body');
+
+                tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-2xl text-blue-500 mb-2"></i><p class="text-sm">Menghubungi server backend...</p></td></tr>`;
+
+                try {
+                    const response = await fetch('/api/github/pipelines');
+                    if (!response.ok) throw new Error("Gagal mengambil data dari backend");
+                    
+                    const runs = await response.json();
+
+                    if (runs.error) throw new Error(runs.error);
+
+                    if (runs && runs.length > 0) {
+                        const latest = runs[0];
+                        document.getElementById('gh-latest-repo').innerText = latest.repoName;
+                        document.getElementById('gh-latest-run').innerText = `#${latest.run_number}`;
+                        document.getElementById('gh-latest-branch').innerText = latest.branch;
+                        document.getElementById('gh-latest-event').innerText = latest.event;
+                        
+                        document.getElementById('gh-latest-duration').innerText = formatDuration(new Date(latest.created_at), new Date(latest.updated_at));
+
+                        const statusEl = document.getElementById('gh-latest-status');
+                        const indEl = document.getElementById('gh-latest-indicator');
+                        
+                        const isDone = latest.status === 'completed';
+                        const displayStatus = isDone ? latest.conclusion : latest.status;
+                        
+                        statusEl.innerHTML = `<span class="${displayStatus === 'success' ? 'text-emerald-400' : displayStatus === 'failure' ? 'text-red-400' : 'text-amber-400'}">${displayStatus}</span>`;
+                        indEl.className = `w-3 h-3 rounded-full animate-pulse ${displayStatus === 'success' ? 'bg-emerald-500' : displayStatus === 'failure' ? 'bg-red-500' : 'bg-amber-500'}`;
+                    }
+
+                    if (runs.length === 0) {
+                        allPipelineData = []; // Reset global
+                        tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500"><i class="fa-solid fa-play text-2xl mb-2 text-slate-400"></i><p>Tidak ada riwayat pipeline ditemukan.</p></td></tr>`;
+                        renderPipelines();
+                    } else {
+                        const formattedRuns = runs.map(run => {
+                            const start = new Date(run.created_at);
+                            const end = new Date(run.updated_at);
+                            const durationSecs = Math.floor((end - start) / 1000);
+
+                            return {
+                                ...run,
+                                updated_at: end,
+                                created_at: start,
+                                updatedAt: end,
+                                createdAt: start,
+                                duration: durationSecs,
+                                durationInSeconds: durationSecs
+                            };
+                        });
+                        
+                        // [TAMBAHAN PAGINASI]: Simpan ke variabel global dan render tabel
+                        allPipelineData = formattedRuns;
+                        currentPipelinePage = 1;
+                        renderPipelines(); 
+                    }
+
+                    if (statusLabel) {
+                        statusLabel.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> Terhubung Real-Time`;
+                        statusLabel.className = "text-xs bg-emerald-500/10 text-emerald-400 px-3 py-1.5 rounded-full border border-emerald-500/20";
+                    }
+                } catch (error) {
+                    tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-400"><i class="fa-solid fa-triangle-exclamation text-2xl mb-2"></i><p class="font-semibold">Sinkronisasi Pipeline Gagal</p><p class="text-xs text-slate-400 mt-1">${error.message}</p></td></tr>`;
+                    if (statusLabel) {
+                        statusLabel.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Koneksi Terputus`;
+                        statusLabel.className = "text-xs bg-red-500/10 text-red-400 px-3 py-1.5 rounded-full border border-red-500/20";
+                    }
+                }
+            }
+
+            // [TAMBAHAN PAGINASI]: Fungsi mencetak desain tombol (sama persis dengan log audit)
+            function renderPipelinePaginationButtons() {
+                const container = document.getElementById('pipeline-pagination-buttons');
+                if (!container) return;
+                container.innerHTML = "";
+                
+                const totalPages = Math.ceil(allPipelineData.length / pipelineRowsPerPage);
+                if (totalPages <= 1) return;
+
+                // Tombol Previous
+                container.innerHTML += `
+                    <button onclick="changePipelinePage(${currentPipelinePage - 1})" ${currentPipelinePage === 1 ? 'disabled' : ''} 
+                        class="px-2 py-1 rounded bg-slate-800 text-slate-400 hover:bg-slate-700 disabled:opacity-30 disabled:hover:bg-slate-800 transition-colors">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                `;
+
+                // Tombol Angka Halaman
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || (i >= currentPipelinePage - 1 && i <= currentPipelinePage + 1)) {
+                        const activeClass = i === currentPipelinePage 
+                            ? "bg-blue-600 text-white font-bold" 
+                            : "bg-slate-800 text-slate-400 hover:bg-slate-700";
+                            
+                        container.innerHTML += `
+                            <button onclick="changePipelinePage(${i})" class="px-2.5 py-1 rounded ${activeClass} transition-colors">${i}</button>
+                        `;
+                    } else if (i === currentPipelinePage - 2 || i === currentPipelinePage + 2) {
+                        container.innerHTML += `<span class="px-1 text-slate-600">...</span>`;
+                    }
+                }
+
+                // Tombol Next
+                container.innerHTML += `
+                    <button onclick="changePipelinePage(${currentPipelinePage + 1})" ${currentPipelinePage === totalPages ? 'disabled' : ''} 
+                        class="px-2 py-1 rounded bg-slate-800 text-slate-400 hover:bg-slate-700 disabled:opacity-30 disabled:hover:bg-slate-800 transition-colors">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                `;
+            }
+
+            // [TAMBAHAN PAGINASI]: Fungsi saat tombol ditekan
+            function changePipelinePage(page) {
+                const totalPages = Math.ceil(allPipelineData.length / pipelineRowsPerPage);
+                if (page < 1 || page > totalPages) return;
+                currentPipelinePage = page;
+                renderPipelines();
+            }
+
+            // ==========================================
+            // 5. INFRASTRUCTURE
+            // ==========================================
+
+            // 1. Ubuntu Server
+            async function loadInfrastructure() {
+                try {
+                    const response = await fetch('/api/infrastructure/server');
+                    const data = await response.json();
+                    
+                    document.getElementById('hostnameValue').innerText = data.hostname;
+                    document.getElementById('serverStatus').innerText = data.status.toUpperCase();
+                    document.getElementById('serverStatus').className = "text-emerald-400 font-semibold";
+                    document.getElementById('serverIndicator').className = "w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse";
+                    
+                    document.getElementById('cpuValue').innerText = data.cpu + '%';
+                    document.getElementById('cpuBar').style.width = data.cpu + '%';
+                    document.getElementById('memoryValue').innerText = data.memory + '%';
+                    document.getElementById('memoryBar').style.width = data.memory + '%';
+                    document.getElementById('diskValue').innerText = `${data.disk}%`;
+                    document.getElementById('diskBar').style.width = `${data.disk}%`;
+                    document.getElementById('uptimeValue').innerText = data.uptime;
+                } catch (error) {
+                    console.error("Error loading server:", error);
+                    const statusEl = document.getElementById('serverStatus');
+                    statusEl.innerText = 'OFFLINE';
+                    statusEl.className = 'text-red-400 font-semibold';
+                    document.getElementById('serverIndicator').className = "w-3 h-3 rounded-full bg-red-500 animate-pulse";
+                }
+            }
+
+            // 2. Docker Engine
+            async function loadDocker() {
+                try {
+                    const response = await fetch('/api/infrastructure/docker');
+                    const data = await response.json();
+                    const containerList = document.getElementById('dockerContainerList');
+                    const statusEl = document.getElementById('dockerStatus');
+                    const indicator = document.getElementById('dockerIndicator');
+                    
+                    containerList.innerHTML = '';
+                    document.getElementById('dockerRunning').innerText = data.containers_running;
+
+                    if (data.containers_running > 0) {
+                        statusEl.innerText = 'RUNNING';
+                        statusEl.className = 'font-semibold text-emerald-400';
+                        indicator.className = "w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse";
+                        data.containers.forEach(container => {
+                            containerList.innerHTML += `
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-slate-300 truncate">${container.container_name}</span>
+                                    <span class="text-white">${container.status}</span>
+                                </div>`;
+                        });
+                    } else {
+                        statusEl.innerText = 'STOPPED'; 
+                        statusEl.className = 'font-semibold text-yellow-400';
+                        indicator.className = "w-3 h-3 rounded-full bg-yellow-500 animate-pulse";
+                        containerList.innerHTML = `<div class="text-slate-500 text-xs">Tidak ada container aktif</div>`;
+                    }
+                } catch(error) {
+                    console.error("Error loading docker:", error);
+                    document.getElementById('dockerStatus').innerText = 'Offline';
+                    document.getElementById('dockerStatus').className = 'font-bold text-red-400';
+                    document.getElementById('dockerIndicator').className = "w-3 h-3 rounded-full bg-red-500 animate-pulse";
+                }
+            }
+
+            // 3. GitHub Actions
+            async function loadGitHubActions() {
+                try {
+                    const response = await fetch('/api/github/pipelines');
+                    const data = await response.json();
+                    const latest = data[0]; 
+
+                    // Ambil teks status, jadikan Uppercase
+                    const statusText = (latest.conclusion || latest.status).toUpperCase();
+                    const statusEl = document.getElementById('gh-latest-status');
+
+                    document.getElementById('gh-latest-repo').innerText = latest.repoName;
+                    document.getElementById('gh-latest-run').innerText = `#${latest.run_number}`;
+                    document.getElementById('gh-latest-branch').innerText = latest.branch;
+                    document.getElementById('gh-latest-event').innerText = latest.event;
+                    document.getElementById('gh-latest-duration').innerText = '1m 20s'; 
+                    
+                    // Terapkan standar patokan (Uppercase, font-semibold, warna kondisional)
+                    statusEl.innerText = statusText;
+                    statusEl.className = (statusText === 'SUCCESS') ? 'font-semibold text-emerald-400' : 'font-semibold text-red-400';
+                    
+                    document.getElementById('gh-latest-indicator').className = 
+                        (statusText === 'SUCCESS') ? "w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" : "w-3 h-3 rounded-full bg-red-500 animate-pulse";
+                } catch (error) {
+                    console.error("Error loading github:", error);
+                    const statusEl = document.getElementById('gh-latest-status');
+                    statusEl.innerText = 'ERROR';
+                    statusEl.className = 'font-semibold text-red-400';
+                }
+            }
+
+            // 4. Tailscale
+            async function fetchTailscale() {
+                try {
+                    const response = await fetch('/api/infrastructure/tailscale');
+                    const data = await response.json();
+
+                    if (data.status === 'error') throw new Error(data.error);
+
+                    const tsStatus = document.getElementById('ts-status');
+                    
+                    // Terapkan standar patokan
+                    tsStatus.innerText = data.status === 'online' ? 'ONLINE' : 'OFFLINE';
+                    tsStatus.className = data.status === 'online' ? 'font-semibold text-emerald-400' : 'font-semibold text-red-400';
+                    
+                    document.getElementById('ts-ip').innerText = data.tailscale_ip;
+                    document.getElementById('ts-server-name').innerText = data.server_name; 
+
+                    const deviceList = document.getElementById('ts-devices-list');
+                    deviceList.innerHTML = ""; 
+
+                    if (data.active_devices && data.active_devices.length > 0) {
+                        data.active_devices.forEach(device => {
+                            deviceList.innerHTML += `<li class="flex items-center text-white"><i class="fa-solid fa-laptop mr-2 text-[10px]"></i> ${device}</li>`;
+                        });
+                    }
+
+                    document.getElementById('ts-indicator').className = `w-3 h-3 rounded-full animate-pulse ${data.status === 'online' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : 'bg-red-500'}`;
+                } catch (error) {
+                    console.error("Gagal ambil data Tailscale:", error);
+                }
+            }
+
+            // =========================================================================
+            // 5. AUDIT LOGS & AKTIVITAS TERBARU (GABUNGAN)
+            // =========================================================================
+            let allAuditLogs = [];
+            let currentAuditPage = 1;
+            const logsPerPage = 15;
+
+            async function fetchAuditLogs() {
+                const tableBody = document.getElementById('audit-table-body');
+                const activityContainer = document.getElementById('activity-container');
+
+                // Tampilkan animasi loading di kedua elemen
+                if (tableBody) tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-2xl text-blue-500 mb-2"></i><p class="text-sm">Mengambil log keamanan real-time...</p></td></tr>`;
+                if (activityContainer) activityContainer.innerHTML = '<div class="w-full col-span-full p-4 text-center text-sm text-slate-400"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Memuat aktivitas log...</div>';
+
+                try {
+                    const response = await fetch('/api/audit/logs');
+                    if (!response.ok) throw new Error("Gagal mengambil data log audit");
+                    
+                    allAuditLogs = await response.json();
+                    currentAuditPage = 1; // Reset ke halaman pertama setiap refresh
+                    
+                    // Render data ke Tabel dan Widget
+                    if (tableBody) renderAuditTable();
+                    if (activityContainer) renderRecentActivity();
+
+                } catch (error) {
+                    console.error(error);
+                    if (tableBody) tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-400"><i class="fa-solid fa-triangle-exclamation text-2xl mb-2"></i><p>Gagal memuat log.</p></td></tr>`;
+                    if (activityContainer) activityContainer.innerHTML = '<div class="w-full col-span-full p-4 text-center text-sm text-red-400">Gagal terhubung ke API log audit.</div>';
+                }
+            }
+
+            // =========================================================================
+            // RENDER UNTUK WIDGET AKTIVITAS TERBARU (KHUSUS HARI INI & MURNI LOG AUDIT)
+            // =========================================================================
+            function renderRecentActivity() {
+                const container = document.getElementById('activity-container');
+                container.innerHTML = ''; 
+
+                // Dapatkan tanggal hari ini untuk memfilter data
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                const todayString = `${year}-${month}-${day}`; // Format: YYYY-MM-DD
+
+                // MODIFIKASI SINKRONISASI: Hanya ambil log audit murni (show_in_audit !== false) yang terjadi hari ini
+                const todaysLogs = allAuditLogs.filter(log => log.show_in_audit !== false && log.timestamp.startsWith(todayString));
+
+                if (todaysLogs.length === 0) {
+                    container.innerHTML = '<div class="w-full col-span-full p-4 text-center text-sm text-slate-500">Belum ada aktivitas baru hari ini.</div>';
+                    return;
+                }
+
+                // Ambil maksimal 8 log terbaru dari hari ini saja
+                const recentLogs = todaysLogs.slice(0, 8);
+
+                recentLogs.forEach(log => {
+                    let colorClass = 'bg-indigo-500/10 text-indigo-400';
+                    let iconClass = 'fa-shield-halved';
+
+                    if (log.severity === 'critical') {
+                        colorClass = 'bg-red-500/10 text-red-400';
+                        iconClass = 'fa-bug';
+                    } 
+                    else if (log.severity === 'high') {
+                        colorClass = 'bg-orange-500/10 text-orange-400';
+                        iconClass = 'fa-triangle-exclamation';
+                    } 
+                    else if (log.severity === 'low' || log.status === 'success') {
+                        colorClass = 'bg-emerald-500/10 text-emerald-400';
+                        iconClass = 'fa-check';
+                    }
+
+                    container.innerHTML += `
+                        <div class="px-4 py-3 hover:bg-slate-800/30 rounded-lg transition border border-slate-800/50 flex gap-4 items-start">
+                            <div class="mt-1 w-8 h-8 rounded-full ${colorClass} flex items-center justify-center shrink-0">
+                                <i class="fa-solid ${iconClass} text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-[13px] text-slate-200 line-clamp-2">${log.event}</p>
+                                <p class="text-[10px] text-slate-500 mt-1">${log.category} • ${log.timestamp}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // =========================================================================
+            // RENDERING TABEL AUDIT (SUDAH DIFILTER KHUSUS INSIDEN / LOG KEAMANAN)
+            // =========================================================================
+            function renderAuditTable() {
+                const tableBody = document.getElementById('audit-table-body');
+                tableBody.innerHTML = "";
+
+                // Saring data: Hanya masukkan log jika tidak di-set "show_in_audit: false" dari backend
+                const auditLogsOnly = allAuditLogs.filter(log => log.show_in_audit !== false);
+
+                if (auditLogsOnly.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">Tidak ada log insiden keamanan yang ditemukan.</td></tr>`;
+                    document.getElementById('pagination-info').innerText = "Menampilkan 0 dari 0 log";
+                    document.getElementById('pagination-buttons').innerHTML = "";
+                    return;
+                }
+
+                // Hitung indeks berdasarkan data yang sudah difilter
+                const startIndex = (currentAuditPage - 1) * logsPerPage;
+                const endIndex = Math.min(startIndex + logsPerPage, auditLogsOnly.length);
+                const paginatedLogs = auditLogsOnly.slice(startIndex, endIndex);
+
+                paginatedLogs.forEach(log => {
+                    let severityClass = "text-slate-400 font-semibold";
+                    if (log.severity === "critical") severityClass = "text-red-500 font-semibold";
+                    else if (log.severity === "high") severityClass = "text-orange-400 font-semibold";
+                    else if (log.severity === "medium") severityClass = "text-amber-400 font-semibold";
+                    else if (log.severity === "low") severityClass = "text-blue-400 font-semibold";
+
+                    let statusTextClass = "text-slate-400 font-semibold";
+                    if (['success'].includes(log.status)) statusTextClass = "text-emerald-400 font-semibold";
+                    else if (['blocked', 'quarantined', 'reverted'].includes(log.status)) statusTextClass = "text-red-400 font-semibold";
+                    else if (['investigating', 'flagged'].includes(log.status)) statusTextClass = "text-amber-400 font-semibold animate-pulse";
+
+                    let icon = "fa-file-lines text-slate-400";
+                    if (log.category === "Security") icon = "fa-shield-halved text-red-400";
+                    else if (log.category === "Pipeline") icon = "fa-rocket text-blue-400";
+                    else if (log.category === "Dependency") icon = "fa-cubes text-orange-400";
+                    else if (log.category === "Artifact") icon = "fa-box text-purple-400";
+                    else if (log.category === "Repository") icon = "fa-code-branch text-emerald-400";
+                    else if (log.category === "Infrastructure") icon = "fa-network-wired text-indigo-400";
+                    else if (log.category === "Source Code Management") icon = "fa-code text-orange-400"; 
+                    else if (log.category === "Secret Protection") icon = "fa-key text-yellow-400"; 
+
+                    tableBody.innerHTML += `
+                        <tr class="border-b border-slate-700/30 hover:bg-white/5 transition-colors">
+                            <td class="p-4 text-slate-400 font-mono whitespace-nowrap">${log.timestamp}</td>
+                            <td class="p-4 font-semibold text-slate-300 whitespace-nowrap"><i class="fa-solid ${icon} mr-2"></i>${log.category}</td>
+                            <td class="p-4 text-slate-300 max-w-xl break-words">${log.event}</td>
+                            <td class="p-4"><span class="${severityClass}">${log.severity.toUpperCase()}</span></td>
+                            <td class="p-4 text-right"><span class="${statusTextClass}">${log.status.toUpperCase()}</span></td>
+                        </tr>
+                    `;
+                });
+
+                // Update info halaman berdasarkan jumlah log yang sudah difilter
+                document.getElementById('pagination-info').innerText = `Menampilkan ${startIndex + 1} - ${endIndex} dari ${auditLogsOnly.length} log`;
+                
+                // Kirim jumlah total data hasil filter ke fungsi pagination tombol
+                renderPaginationButtons(auditLogsOnly.length);
+            }
+
+            // =========================================================================
+            // RENDER TOMBOL PAGINASI (MENERIMA TOTAL DATA HASIL FILTER)
+            // =========================================================================
+            function renderPaginationButtons(totalItems) {
+                const container = document.getElementById('pagination-buttons');
+                container.innerHTML = "";
+                
+                // Total halaman sekarang dihitung dari parameter totalItems (bukan allAuditLogs.length)
+                const totalPages = Math.ceil(totalItems / logsPerPage);
+                if (totalPages <= 1) return;
+
+                // Tombol Previous
+                container.innerHTML += `
+                    <button onclick="changeAuditPage(${currentAuditPage - 1})" ${currentAuditPage === 1 ? 'disabled' : ''} 
+                        class="px-2 py-1 rounded bg-slate-800 text-slate-400 hover:bg-slate-700 disabled:opacity-30 disabled:hover:bg-slate-800 transition-colors">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                `;
+
+                // Penomoran Halaman
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || (i >= currentAuditPage - 1 && i <= currentAuditPage + 1)) {
+                        const activeClass = i === currentAuditPage 
+                            ? "bg-blue-600 text-white font-bold" 
+                            : "bg-slate-800 text-slate-400 hover:bg-slate-700";
+                            
+                        container.innerHTML += `
+                            <button onclick="changeAuditPage(${i})" class="px-2.5 py-1 rounded ${activeClass} transition-colors">${i}</button>
+                        `;
+                    } else if (i === currentAuditPage - 2 || i === currentAuditPage + 2) {
+                        container.innerHTML += `<span class="px-1 text-slate-600">...</span>`;
+                    }
+                }
+
+                // Tombol Next
+                container.innerHTML += `
+                    <button onclick="changeAuditPage(${currentAuditPage + 1})" ${currentAuditPage === totalPages ? 'disabled' : ''} 
+                        class="px-2 py-1 rounded bg-slate-800 text-slate-400 hover:bg-slate-700 disabled:opacity-30 disabled:hover:bg-slate-800 transition-colors">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                `;
+            }
+
+            function changeAuditPage(page) {
+                const totalPages = Math.ceil(allAuditLogs.length / logsPerPage);
+                if (page < 1 || page > totalPages) return;
+                currentAuditPage = page;
+                renderAuditTable();
+            }
+
+            // 6. Registry Artefak
+            function loadArtifactsData() {
+                fetch('/api/artifacts')
+                    .then(response => {
+                        if (!response.ok) throw new Error('Gagal mengambil data artefak');
+                        return response.json();
+                    })
+                    .then(data => {
+                        const tbody = document.getElementById('artifact-table-body');
+                        tbody.innerHTML = ''; // Membersihkan sisa data lama sebelum render ulang
+
+                        data.forEach(item => {
+                            // Konfigurasi Badge Tanda Tangan Digital secara dinamis sesuai nilai properti "signature"
+                            let signatureBadge = '';
+                            if (item.signature === 'Verified') {
+                                signatureBadge = '<span class="badge badge-success"><i class="fa-solid fa-file-signature mr-1"></i> Terverifikasi</span>';
+                            } else if (item.signature === 'Signed') {
+                                signatureBadge = '<span class="badge text-blue-400 bg-blue-500/10 border border-blue-500/30"><i class="fa-solid fa-pen-nib mr-1"></i> Ditandatangani</span>';
+                            } else {
+                                signatureBadge = '<span class="badge badge-critical"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Tidak Ditandatangani</span>';
+                            }
+
+                            // Format string waktu ISO-8601 ke format waktu lokal yang rapi
+                            const createdDate = new Date(item.created);
+                            const formattedDate = createdDate.toLocaleString('id-ID', { 
+                                year: 'numeric', month: 'short', day: 'numeric', 
+                                hour: '2-digit', minute: '2-digit' 
+                            });
+
+                            // Generate baris tabel baru
+                            const row = `
+                                <tr class="border-b border-slate-700/30 hover:bg-slate-800/20 transition-colors">
+                                    <td class="p-4 font-medium text-slate-200">
+                                        <i class="fa-brands fa-docker text-blue-500 mr-2 text-lg"></i>${item.repository}
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="bg-slate-800 px-2 py-1 rounded text-xs font-mono border border-slate-700">${item.tag}</span>
+                                    </td>
+                                    <td class="p-4 text-slate-400">${item.size}</td>
+                                    <td class="p-4 text-slate-400">${formattedDate}</td>
+                                    <td class="p-4">${signatureBadge}</td>
+                                </tr>
+                            `;
+                            tbody.innerHTML += row;
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error Registry Artefak:', error);
+                        const tbody = document.getElementById('artifact-table-body');
+                        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-red-400">Gagal memuat data registri artefak.</td></tr>`;
+                    });
+            }
+
+            function loadSecurityCenterData() {
+                fetch('/api/security/center')
+                    .then(response => {
+                        if (!response.ok) throw new Error('Gagal mengambil data Pusat Keamanan');
+                        return response.json();
+                    })
+                    .then(data => {
+                        // 1. UPDATE SKOR KEAMANAN
+                        const scoreDisplay = document.getElementById('security-score-display');
+                        const scoreContainer = document.getElementById('score-card-container');
+                        const scoreIcon = document.getElementById('security-score-icon');
+                        
+                        scoreDisplay.textContent = `${data.grade} (${data.score}/100)`;
+                        scoreDisplay.className = `text-xl font-bold text-${data.color}-400`;
+                        scoreIcon.className = `fa-solid fa-shield-halved text-3xl text-${data.color}-500`;
+                        scoreContainer.className = `glass-panel px-6 py-2 rounded-lg flex items-center border border-${data.color}-500/30 transition-colors duration-500`;
+
+                        // 2. UPDATE STATUS MITIGASI
+                        const mitigationContainer = document.getElementById('mitigation-container');
+                        mitigationContainer.innerHTML = ''; 
+                        
+                        // DITAMBAHKAN ICON UNTUK COMMIT SIGNING AGAR TIDAK UNDEFINED
+                        const iconMap = {
+                            "commit_signing": "fa-signature text-emerald-400",
+                            "image_signing": "fa-shield-cat text-indigo-400",
+                            "dependency_scanning": "fa-box-open text-orange-400",
+                            "pipeline_hardening": "fa-user-lock text-red-400",
+                            "secret_protection": "fa-key text-yellow-400"
+                        };
+
+                        for (const [key, item] of Object.entries(data.mitigations)) {
+                            let badgeStatus = '';
+                            let toggleLabel = '';
+                            
+                            if (item.status === "Active") {
+                                badgeStatus = '<span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-medium">Aktif (Enabled)</span>';
+                                toggleLabel = '<span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold uppercase tracking-wider">ON</span>';
+                            } else if (item.status === "Bypassed" || item.status === "Vulnerable") {
+                                badgeStatus = '<span class="text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 font-medium">Kerentanan Terdeteksi</span>';
+                                toggleLabel = '<span class="text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 font-semibold uppercase tracking-wider">ALERT</span>';
+                            } else {
+                                badgeStatus = '<span class="text-[10px] px-2 py-0.5 rounded bg-yellow-500/10 text-yellow-400 font-medium">Sedang Ditinjau</span>';
+                                toggleLabel = '<span class="text-[10px] px-2 py-0.5 rounded bg-yellow-500/10 text-yellow-400 font-semibold uppercase tracking-wider">WARN</span>';
+                            }
+
+                            mitigationContainer.innerHTML += `
+                                <div class="bg-slate-800/40 border border-slate-700/50 p-4 rounded-lg flex flex-col justify-between transition-colors hover:border-slate-600">
+                                    <div>
+                                        <div class="flex items-center justify-between mb-3">
+                                            <i class="fa-solid ${iconMap[key]} text-lg"></i>
+                                            ${toggleLabel}
+                                        </div>
+                                        <h4 class="text-sm font-medium text-white leading-tight">${item.name}</h4>
+                                        <p class="text-[10px] text-slate-400 mt-1">${item.description}</p>
+                                    </div>
+                                    <div class="mt-3">${badgeStatus}</div>
+                                </div>
+                            `;
+                        }
+
+                        // 3. UPDATE TIMELINE STRIDE
+                        const timelineContainer = document.getElementById('security-timeline-container');
+                        timelineContainer.innerHTML = ''; 
+
+                        data.timeline.forEach(event => {
+                            let colorBase = 'emerald';
+                            let icon = 'fa-check-double';
+                            let badgeClass = 'badge-success';
+                            let actionBadge = 'Aman';
+
+                            if (event.status === 'CRITICAL') { colorBase = 'red'; icon = 'fa-biohazard'; badgeClass = 'badge-critical'; actionBadge = 'Menunggu Tindakan'; }
+                            else if (event.status === 'HIGH') { colorBase = 'orange'; icon = 'fa-user-shield'; badgeClass = 'badge-high'; actionBadge = 'Diblokir'; }
+                            else if (event.status === 'MEDIUM') { colorBase = 'yellow'; icon = 'fa-triangle-exclamation'; badgeClass = 'badge-medium'; actionBadge = 'Menunggu Perbaikan'; }
+
+                            let timeStr = "--:--";
+                            try {
+                                const timeParts = event.timestamp.split(' ');
+                                if (timeParts.length > 1) {
+                                    timeStr = timeParts[1].substring(0, 5); 
+                                } else if (event.timestamp.includes('T')) {
+                                    const d = new Date(event.timestamp);
+                                    timeStr = d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+                                } else {
+                                    timeStr = event.timestamp.substring(0, 5);
+                                }
+                            } catch (e) {
+                                console.warn("Format tanggal tidak wajar", e);
+                            }
+
+                            timelineContainer.innerHTML += `
+                                <div class="relative">
+                                    <span class="absolute flex items-center justify-center w-8 h-8 bg-brand-panel rounded-full -left-[48px] ring-4 ring-brand-bg border border-${colorBase}-500 text-${colorBase}-400 shadow-[0_0_12px_rgba(var(--color-${colorBase}-500),0.2)]">
+                                        <i class="fa-solid ${icon} text-xs"></i>
+                                    </span>
+                                    <div class="glass-panel p-4 rounded-xl border border-${colorBase}-500/10 hover:border-${colorBase}-500/30 transition">
+                                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-3">
+                                            <div class="flex flex-wrap items-center gap-2 md:gap-3">
+                                                <h4 class="font-semibold text-white text-base">${event.attack_vector}</h4>
+                                                <span class="badge ${badgeClass} px-2 py-0.5">${event.stride_category}</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 flex-wrap justify-start md:justify-end">
+                                                <span class="badge text-[10px] bg-${colorBase}-500/10 text-${colorBase}-400 border border-${colorBase}-500/30 px-2 py-0.5">${actionBadge}</span>
+                                                <time class="text-xs font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">${timeStr}</time>
+                                            </div>
+                                        </div>
+                                        <p class="text-sm text-slate-400">${event.description}</p>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error Security Center:', error);
+                        document.getElementById('security-timeline-container').innerHTML = `<div class="text-red-400 text-sm p-4">Gagal memuat sistem pemantauan keamanan.</div>`;
+                    });
+            }
+
+            // Deklarasikan variabel global chart di bagian paling atas script kamu
+            let securityChart = null; 
+            let strideChart = null; 
+            let pipelineChart = null; 
+
+            // ==========================================
+            // X. DATA DASHBOARD DINAMIS (REAL API)
+            // ==========================================
+            async function fetchExecutiveSummary() {
+                try {
+                    const response = await fetch('/api/dashboard/summary');
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+
+                    // 1. Render Data Dasar ke DOM
+                    document.getElementById('dash-total-repo').textContent = data.totalRepos || '0';
+                    document.getElementById('dash-repo-trend').textContent = data.repoTrend || '-';
+                    document.getElementById('dash-active-pipeline').textContent = data.activePipelines || '0';
+                    document.getElementById('dash-pipeline-projects').textContent = data.pipelineProjects || '0';
+                    document.getElementById('dash-security-findings').textContent = data.securityFindings || '0';
+                    document.getElementById('dash-security-trend').textContent = data.securityTrendText || '-';
+                    
+                    // 2. Tren Keamanan Umum (Icon Panah)
+                    const secIcon = document.getElementById('dash-security-icon');
+                    if (secIcon) {
+                        if (data.isSecurityImproved) {
+                            secIcon.className = "fa-solid fa-arrow-trend-up mr-1";
+                            secIcon.parentElement.className = "text-xs text-emerald-400 mt-1 flex items-center";
+                        } else {
+                            secIcon.className = "fa-solid fa-arrow-trend-down mr-1";
+                            secIcon.parentElement.className = "text-xs text-red-400 mt-1 flex items-center";
+                        }
+                    }
+
+                    // 3. PEMBARUAN DINAMIS KARTU CELAH KRITIS
+                    const criticalCount = data.criticalVuln || 0;
+                    const critCard = document.getElementById('dash-critical-card');
+                    const critBg = document.getElementById('dash-critical-bg');
+                    const critTitle = document.getElementById('dash-critical-title');
+                    const critIconWrapper = document.getElementById('dash-critical-icon-wrapper');
+                    const critVulnElement = document.getElementById('dash-critical-vuln');
+                    const critDescElement = document.getElementById('dash-critical-desc');
+
+                    if (critVulnElement) {
+                        critVulnElement.textContent = criticalCount;
+                        if (criticalCount > 0) {
+                            if (critCard) critCard.className = "glass-panel p-4 rounded-xl flex flex-col justify-between border-red-500/30 relative overflow-hidden transition-all duration-300";
+                            if (critBg) critBg.className = "absolute inset-0 bg-red-500/5 z-0 transition-all duration-300";
+                            if (critTitle) critTitle.className = "text-red-300 text-xs font-medium uppercase tracking-wide transition-colors duration-300";
+                            if (critIconWrapper) {
+                                critIconWrapper.className = "w-7 h-7 rounded bg-red-500/20 flex items-center justify-center text-red-500 transition-colors duration-300";
+                                critIconWrapper.innerHTML = '<i class="fa-solid fa-radiation text-xs"></i>';
+                            }
+                            critVulnElement.className = "text-2xl font-bold text-red-400 transition-colors duration-300";
+                            if (critDescElement) {
+                                critDescElement.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1"></i> Tindakan segera dibutuhkan';
+                                critDescElement.className = "text-xs text-red-400 mt-1 flex items-center opacity-80 transition-colors duration-300";
+                            }
+                        } else {
+                            if (critCard) critCard.className = "glass-panel p-4 rounded-xl flex flex-col justify-between border-slate-700/50 relative overflow-hidden transition-all duration-300";
+                            if (critBg) critBg.className = "absolute inset-0 bg-transparent z-0 transition-all duration-300";
+                            if (critTitle) critTitle.className = "text-slate-400 text-xs font-medium uppercase tracking-wide transition-colors duration-300";
+                            if (critIconWrapper) {
+                                critIconWrapper.className = "w-7 h-7 rounded bg-emerald-500/10 flex items-center justify-center text-emerald-400 transition-colors duration-300";
+                                critIconWrapper.innerHTML = '<i class="fa-solid fa-shield-halved text-xs"></i>';
+                            }
+                            critVulnElement.className = "text-2xl font-bold text-emerald-400 transition-colors duration-300";
+                            if (critDescElement) {
+                                critDescElement.innerHTML = '<i class="fa-solid fa-circle-check mr-1"></i> Tidak ada ancaman kritis';
+                                critDescElement.className = "text-xs text-emerald-400 mt-1 flex items-center opacity-80 transition-colors duration-300";
+                            }
+                        }
+                    }
+
+                    // 4. PEMBARUAN DINAMIS SECURITY POSTURE OVERVIEW
+                    if (data.postureControls) {
+                        const postureItems = [
+                            { id: 'posture-signed-commit', isActive: data.postureControls.signedCommit },
+                            { id: 'posture-secret-scanning', isActive: data.postureControls.secretScanning },
+                            { id: 'posture-sbom', isActive: data.postureControls.sbom },
+                            { id: 'posture-artifact-signing', isActive: data.postureControls.artifactSigning },
+                            { id: 'posture-least-privilege', isActive: data.postureControls.leastPrivilegeRunner }
+                        ];
+
+                        postureItems.forEach(item => {
+                            const element = document.getElementById(item.id);
+                            if (element) {
+                                if (item.isActive) {
+                                    element.textContent = "Aktif (ON)";
+                                    element.className = "text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold uppercase tracking-wider transition-colors duration-300";
+                                } else {
+                                    element.textContent = "Kerentanan Terdeteksi";
+                                    element.className = "text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 font-semibold uppercase tracking-wider transition-colors duration-300";
+                                }
+                            }
+                        });
+                    }
+
+                    // 5. PEMBARUAN DINAMIS CHART TREN KEAMANAN
+                    if (data.chartData) {
+                        const canvasId = 'chartSecurityTrend';
+                        const ctxSec = document.getElementById(canvasId);
+                        if (ctxSec) {
+                            let existingChart = Chart.getChart(canvasId);
+                            if (existingChart) existingChart.destroy();
+                            else if (securityChart) securityChart.destroy();
+
+                            const ctx2d = ctxSec.getContext('2d');
+                            let gradTotal = ctx2d.createLinearGradient(0, 0, 0, 200);
+                            gradTotal.addColorStop(0, 'rgba(59, 130, 246, 0.25)');
+                            gradTotal.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+
+                            let gradCrit = ctx2d.createLinearGradient(0, 0, 0, 200);
+                            gradCrit.addColorStop(0, 'rgba(239, 68, 68, 0.25)');
+                            gradCrit.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+
+                            securityChart = new Chart(ctxSec, {
+                                type: 'line',
+                                data: {
+                                    labels: data.chartData.labels, 
+                                    datasets: [
+                                        {
+                                            label: 'Total Temuan',
+                                            data: data.chartData.totalFindings,
+                                            borderColor: '#3b82f6',
+                                            backgroundColor: gradTotal,
+                                            borderWidth: 2,
+                                            tension: 0.4,
+                                            fill: true,
+                                            pointBackgroundColor: '#0B1121',
+                                            pointBorderColor: '#3b82f6',
+                                            pointBorderWidth: 2,
+                                            pointRadius: 4,
+                                            pointHoverRadius: 6
+                                        },
+                                        {
+                                            label: 'Celah Kritis',
+                                            data: data.chartData.criticalFindings,
+                                            borderColor: '#ef4444',
+                                            backgroundColor: gradCrit,
+                                            borderWidth: 2,
+                                            tension: 0.4,
+                                            fill: true,
+                                            pointBackgroundColor: '#0B1121',
+                                            pointBorderColor: '#ef4444',
+                                            pointBorderWidth: 2,
+                                            pointRadius: 4,
+                                            pointHoverRadius: 6
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: { legend: { display: false } },
+                                    scales: {
+                                        y: { 
+                                            beginAtZero: true, 
+                                            suggestedMax: 5, 
+                                            grid: { color: 'rgba(255,255,255,0.05)' },
+                                            ticks: { 
+                                                color: '#64748b', 
+                                                stepSize: 1,
+                                                callback: function(value) { if (value === 0) return ''; return value; }
+                                            }
+                                        },
+                                        x: { grid: { display: false }, ticks: { color: '#64748b' } }
+                                    }
+                                }
+                            });
+                        }
+                    }
+
+                    // 6. PEMBARUAN DINAMIS STRIDE THREAT IMMUNITY
+                    if (data.strideValues) {
+                        const canvasStrideId = 'chartStrideDistribution';
+                        const ctxStride = document.getElementById(canvasStrideId);
+
+                        if (ctxStride) {
+                            let existingStrideChart = Chart.getChart(canvasStrideId);
+                            if (existingStrideChart) existingStrideChart.destroy();
+                            else if (strideChart) strideChart.destroy();
+
+                            strideChart = new Chart(ctxStride, {
+                                type: 'radar',
+                                data: {
+                                    labels: ['Spoofing', 'Tampering', 'Repudiation', 'Info Disclosure', 'Denial of Service', 'Elevation of Privilege'],
+                                    datasets: [{
+                                        label: 'Tingkat Imunitas (%)',
+                                        data: data.strideValues,
+                                        backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                                        borderColor: '#6366F1',
+                                        borderWidth: 2,
+                                        pointBackgroundColor: '#6366F1',
+                                        pointBorderColor: '#fff',
+                                        pointHoverBackgroundColor: '#fff',
+                                        pointHoverBorderColor: '#6366F1'
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: { display: false }
+                                    },
+                                    scales: {
+                                        r: {
+                                            min: 0,
+                                            max: 100,
+                                            beginAtZero: true,
+                                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                                            ticks: { display: false, stepSize: 20 },
+                                            pointLabels: {
+                                                color: '#64748b',
+                                                font: { size: 10, weight: 'medium' }
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
+
+                    // ==========================================
+                    // 7. PEMBARUAN DINAMIS TINGKAT KESUKSESAN PIPELINE (CYBERPUNK NEON GRADIENT)
+                    // ==========================================
+                    if (data.pipelineStats) {
+                        const processValue = data.pipelineStats.process || 0;
+
+                        // Update teks legend di kartu sebelah kanan
+                        const lblSuccess = document.getElementById('lbl-pipe-success');
+                        const lblFail = document.getElementById('lbl-pipe-fail');
+                        const lblProcess = document.getElementById('lbl-pipe-process'); 
+
+                        if (lblSuccess) lblSuccess.textContent = (data.pipelineStats.success || 0) + '%';
+                        if (lblFail) lblFail.textContent = (data.pipelineStats.failure || 0) + '%';
+                        if (lblProcess) lblProcess.textContent = processValue + '%';
+
+                        const canvasPipeId = 'chartPipelineSuccess';
+                        const ctxPipe = document.getElementById(canvasPipeId);
+
+                        if (ctxPipe) {
+                            let existingPipeChart = Chart.getChart(canvasPipeId);
+                            if (existingPipeChart) existingPipeChart.destroy();
+                            else if (pipelineChart) pipelineChart.destroy();
+
+                            // Ambil konteks 2D canvas untuk membuat efek gradasi warna
+                            const ctx2d = ctxPipe.getContext('2d');
+                            
+                            // 1. Gradient Hijau Neon (Sukses)
+                            const gradientSuccess = ctx2d.createLinearGradient(0, 0, 0, 200);
+                            gradientSuccess.addColorStop(0, 'rgba(34, 197, 94, 1)');   // Hijau Terang (Atas)
+                            gradientSuccess.addColorStop(1, 'rgba(4, 120, 87, 1)');    // Hijau Gelap (Bawah)
+
+                            // 2. Gradient Merah Neon (Gagal)
+                            const gradientFailure = ctx2d.createLinearGradient(0, 0, 0, 200);
+                            gradientFailure.addColorStop(0, 'rgba(239, 68, 68, 1)');   // Merah Terang (Atas)
+                            gradientFailure.addColorStop(1, 'rgba(153, 27, 27, 1)');   // Merah Gelap (Bawah)
+
+                            // 3. Gradient Oranye Neon (Proses)
+                            const gradientProcess = ctx2d.createLinearGradient(0, 0, 0, 200);
+                            gradientProcess.addColorStop(0, 'rgba(249, 115, 22, 1)');  // Oranye Terang (Atas)
+                            gradientProcess.addColorStop(1, 'rgba(194, 65, 12, 1)');   // Oranye Gelap (Bawah)
+
+                            pipelineChart = new Chart(ctxPipe, {
+                                type: 'doughnut',
+                                data: {
+                                    labels: ['Sukses', 'Gagal', 'Proses'],
+                                    datasets: [{
+                                        data: [
+                                            data.pipelineStats.success || 0, 
+                                            data.pipelineStats.failure || 0, 
+                                            processValue
+                                        ],
+                                        backgroundColor: [gradientSuccess, gradientFailure, gradientProcess],
+                                        hoverBackgroundColor: [
+                                            '#4ade80', // Warna bersinar saat kursor di atas segmen sukses
+                                            '#f87171', // Gagal
+                                            '#fb923c'  // Proses
+                                        ],
+                                        borderWidth: 0,         
+                                        borderRadius: 10,       // Membuat ujung segmen membulat mulus seperti kapsul sci-fi
+                                        spacing: 6,            // Memberi jarak potong antar segmen agar terlihat modular
+                                        hoverOffset: 8,
+                                        cutout: '82%'          // Cincin dibuat lebih tipis agar terlihat elegan nan mewah
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: { 
+                                        legend: { display: false },
+                                        tooltip: {
+                                            backgroundColor: 'rgba(15, 23, 42, 0.95)', 
+                                            titleColor: '#94a3b8',
+                                            bodyColor: '#ffffff',
+                                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                                            borderWidth: 1,
+                                            padding: 12,
+                                            cornerRadius: 8,
+                                            displayColors: true,
+                                            boxWidth: 10,
+                                            boxHeight: 10,
+                                            boxPadding: 4,
+                                            callbacks: {
+                                                label: function(context) {
+                                                    return ' ' + context.label + ': ' + context.raw + '%';
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
+
+                } catch (error) {
+                    console.error("Gagal memuat data Ringkasan Eksekutif:", error);
+                    
+                    const errorElements = ['dash-total-repo', 'dash-active-pipeline', 'dash-pipeline-projects', 'dash-security-findings', 'dash-critical-vuln'];
+                    errorElements.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.textContent = "Err";
+                    });
+                }
+            }
+
+            // ==========================================
+            // 6. INITIALIZATION & LIFECYCLE
+            // ==========================================
+
+            window.addEventListener('DOMContentLoaded', () => {
+                // 1. Eksekusi Render Pertama
+                fetchExecutiveSummary();
+                fetchGitHubRepos(); 
+                fetchGitHubPipelines(); 
+                fetchTailscale();
+                fetchAuditLogs();
+                loadInfrastructure();
+                loadDocker();
+                loadArtifactsData();
+                loadSecurityCenterData();
+
+                // 2. Setup Auto-refresh Interval (Polling setiap 5 detik)
+                setInterval(loadInfrastructure, 5000);
+                setInterval(loadDocker, 5000);
+                setInterval(fetchTailscale, 5000);
+                setInterval(loadArtifactsData, 5000);
+                setInterval(loadSecurityCenterData, 5000);
+            });
+        </script>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </body>

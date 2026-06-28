@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -29,3 +32,8 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build -t devsecops-demo:v1 .
+
+      - name: Simulate Privileged Pipeline
+        run: |
+          echo "Pipeline has write permission to repository."
+          echo "This simulates an over-privileged GitHub Actions workflow."

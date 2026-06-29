@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -31,22 +34,5 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build -t devsecops-demo:v1 .
-
-      - name: Attack - Privilege Abuse
-        env:
-          MY_SECRET_TOKEN: ${{ secrets.HACKER_TOKEN }}
-        run: |
-          echo "Memulai serangan..."
-          git config --global user.email "#exploit00@devil.com#"
-          git config --global user.name "#Anonim#"
-          
-          echo "BERHASIL TEMBUS" > malware.txt
-          
-          # Kita pastikan token terdeteksi (GitHub akan menyensornya dengan ***)
-          echo "Token check: $MY_SECRET_TOKEN"
-          
-          git add malware.txt
-          git commit -m "Simulate pipeline privilege abuse"
-          
-          # Gunakan variabel env dengan tanda kutip agar aman
-          git push --force "https://x-access-token:${MY_SECRET_TOKEN}@github.com/${{ github.repository }}.git" main
+      
+      

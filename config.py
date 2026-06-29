@@ -1,5 +1,7 @@
-GITHUB_TOKEN= "ghp_1234567890abcdefghijklmnopqrstuvwxyz"
-AWS_ACCESS_KEY_ID= "AKIA123456789EXAMPLE"
-AWS_SECRET_ACCESS_KEY= "abcdefghijklmnopqrstuvwxyz1234567890"
-DB_PASSWORD= "SuperSecretPassword123"
-JWT_SECRET= "myjwtsecretkey"
+import os
+
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+JWT_SECRET = os.getenv("JWT_SECRET")

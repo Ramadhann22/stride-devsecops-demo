@@ -1,7 +1,0 @@
-import os
-
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-JWT_SECRET = os.getenv("JWT_SECRET")

@@ -1129,5 +1129,8 @@ def dashboard_summary():
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
     
+    GITHUB_USERNAME = "Ramadhann22"
+    GITHUB_TOKEN = "ghp_1234567890abcdefghijklmnopqrstuvwxyz"
+    
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

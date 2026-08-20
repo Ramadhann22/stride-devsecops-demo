@@ -6,8 +6,8 @@ from datetime import datetime, timedelta
 load_dotenv()
 
 app = Flask(__name__)
-GITHUB_USERNAME = os.getenv("Ramadhann22")
-GITHUB_TOKEN = os.getenv("123456789")
+GITHUB_USERNAME = os.getenv("GITHUB_USERNAME")
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
 # Repositori spesifik yang digunakan untuk pemantauan DevSecOps
 GITHUB_REPO = "stride-devsecops-demo"
